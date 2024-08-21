@@ -97,6 +97,7 @@ $result = $conn->query($sql);
         <tr>
             <th><a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search_query); ?>&sort=title&order=<?php echo $sort_by == 'title' && $sort_order == 'ASC' ? 'DESC' : 'ASC'; ?>">Title</a></th>
             <th><a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search_query); ?>&sort=author_name&order=<?php echo $sort_by == 'author_name' && $sort_order == 'ASC' ? 'DESC' : 'ASC'; ?>">Author</a></th>
+            <th>Category</th>
             <th>Publisher</th>
             <th><a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search_query); ?>&sort=publish_year&order=<?php echo $sort_by == 'publish_year' && $sort_order == 'ASC' ? 'DESC' : 'ASC'; ?>">Year</a></th>
             <th>Quantity</th>
