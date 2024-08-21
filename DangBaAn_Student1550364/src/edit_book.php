@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "librarybook";
+$dbname = "library";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 // Lấy ID sách từ URL
 $book_id = $_GET['id'];
 
-// Kiểm tra xem form đã được submit chưa
+// Kiểm tra xem form đã được submit chưa    
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Lấy dữ liệu từ form
     $title = $_POST['title'];
@@ -66,14 +66,14 @@ $conn->close();
 </head>
 <body>
 <div class="container">
-    <h2 class="mt-4">Sửa thông tin sách</h2>
+    <h2 class="mt-4">Edit Book</h2>
     <form method="POST">
         <div class="form-group">
-            <label for="title">Tên sách:</label>
+            <label for="title">Title:</label>
             <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($book['title']); ?>" required>
         </div>
         <div class="form-group">
-            <label for="author_id">Tác giả:</label>
+            <label for="author_id">Author:</label>
             <select class="form-control" id="author_id" name="author_id" required>
                 <?php while ($author = $authors->fetch_assoc()): ?>
                     <option value="<?php echo $author['id']; ?>" <?php if ($author['id'] == $book['author_id']) echo 'selected'; ?>>
@@ -83,7 +83,7 @@ $conn->close();
             </select>
         </div>
         <div class="form-group">
-            <label for="category_id">Thể loại:</label>
+            <label for="category_id">Category:</label>
             <select class="form-control" id="category_id" name="category_id" required>
                 <?php while ($category = $categories->fetch_assoc()): ?>
                     <option value="<?php echo $category['id']; ?>" <?php if ($category['id'] == $book['category_id']) echo 'selected'; ?>>
@@ -93,19 +93,19 @@ $conn->close();
             </select>
         </div>
         <div class="form-group">
-            <label for="publisher">Nhà xuất bản:</label>
+            <label for="publisher">Publisher:</label>
             <input type="text" class="form-control" id="publisher" name="publisher" value="<?php echo htmlspecialchars($book['publisher']); ?>" required>
         </div>
         <div class="form-group">
-            <label for="publish_year">Năm xuất bản:</label>
+            <label for="publish_year">Year:</label>
             <input type="number" class="form-control" id="publish_year" name="publish_year" value="<?php echo $book['publish_year']; ?>" required>
         </div>
         <div class="form-group">
-            <label for="quantity">Số lượng:</label>
+            <label for="quantity">Quantity</label>
             <input type="number" class="form-control" id="quantity" name="quantity" value="<?php echo $book['quantity']; ?>" required>
         </div>
-        <button type="submit" class="btn btn-primary">Cập nhật</button>
-        <a href="index.php" class="btn btn-secondary">Hủy</a>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="index.php" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
 </body>

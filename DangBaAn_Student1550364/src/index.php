@@ -30,6 +30,13 @@ if (isset($_GET['search'])) {
                     OR categories.category_name LIKE '%$search_query%')";
 }
 
+// Xử lý sắp xếp
+$sort_by = isset($_GET['sort']) ? $_GET['sort'] : 'title';
+$sort_order = isset($_GET['order']) ? $_GET['order'] : 'ASC';
+$valid_sort_columns = ['title', 'author_name', 'category_name', 'publish_year'];
+$sort_by = in_array($sort_by, $valid_sort_columns) ? $sort_by : 'title';
+$sort_order = $sort_order === 'DESC' ? 'DESC' : 'ASC';
+
 // Tìm tổng số sách để tính tổng số trang
 $total_books_sql = "SELECT COUNT(*) AS total FROM books 
                     JOIN authors ON books.author_id = authors.id 
@@ -39,18 +46,17 @@ $total_books_result = $conn->query($total_books_sql);
 $total_books = $total_books_result->fetch_assoc()['total'];
 $total_pages = ceil($total_books / $books_per_page);
 
-// Truy vấn để lấy danh sách sách với phân trang và tìm kiếm
+// Truy vấn để lấy danh sách sách với phân trang, tìm kiếm và sắp xếp
 $sql = "SELECT books.*, authors.author_name, categories.category_name 
         FROM books
         JOIN authors ON books.author_id = authors.id
         JOIN categories ON books.category_id = categories.id
         WHERE 1=1 $search_sql
-        ORDER BY books.title
+        ORDER BY $sort_by $sort_order
         LIMIT $offset, $books_per_page";
 
 $result = $conn->query($sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,7 +67,11 @@ $result = $conn->query($sql);
             justify-content: center;
             margin-top: 20px;
         }
-
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -75,21 +85,20 @@ $result = $conn->query($sql);
     <!-- Search Form -->
     <form method="get" class="input-group mb-2">
         <input type="text" name="search" class="form-control" placeholder="Search books, authors, categories..." value="<?php echo htmlspecialchars($search_query); ?>">
-        <button class="btn btn-success" type="submit">Search</button>
+        <button class="btn btn-secondary" type="submit">Search</button>
     </form>
     
     <!-- Add Book Button -->
-    <a href="add_book.php" class="btn btn-primary mb-3">Add New Book</a>
+    <a href="add_book.php" class="btn btn-secondary mb-3">Add New Book</a>
     
     <!-- Book List -->
     <table class="table table-striped">
     <thead>
         <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Category</th>
+            <th><a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search_query); ?>&sort=title&order=<?php echo $sort_by == 'title' && $sort_order == 'ASC' ? 'DESC' : 'ASC'; ?>">Title</a></th>
+            <th><a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search_query); ?>&sort=author_name&order=<?php echo $sort_by == 'author_name' && $sort_order == 'ASC' ? 'DESC' : 'ASC'; ?>">Author</a></th>
             <th>Publisher</th>
-            <th>Year</th>
+            <th><a href="?page=<?php echo $page; ?>&search=<?php echo urlencode($search_query); ?>&sort=publish_year&order=<?php echo $sort_by == 'publish_year' && $sort_order == 'ASC' ? 'DESC' : 'ASC'; ?>">Year</a></th>
             <th>Quantity</th>
             <th>Actions</th>
         </tr>
@@ -137,7 +146,7 @@ $result = $conn->query($sql);
             <!-- Previous Page Link -->
             <?php if ($page > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search_query); ?>">Previous</a>
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search_query); ?>&sort=<?php echo $sort_by; ?>&order=<?php echo $sort_order; ?>">Previous</a>
                 </li>
             <?php else: ?>
                 <li class="page-item disabled">
@@ -148,33 +157,18 @@ $result = $conn->query($sql);
             <!-- Page Number Links -->
             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                 <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search_query); ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search_query); ?>&sort=<?php echo $sort_by; ?>&order=<?php echo $sort_order; ?>"><?php echo $i; ?></a>
                 </li>
             <?php endfor; ?>
             
             <!-- Next Page Link -->
             <?php if ($page < $total_pages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search_query); ?>">Next</a>
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search_query); ?>&sort=<?php echo $sort_by; ?>&order=<?php echo $sort_order; ?>">Next</a>
                 </li>
             <?php else: ?>
                 <li class="page-item disabled">
                     <span class="page-link">Next</span>
                 </li>
             <?php endif; ?>
-        </ul>
-    </nav>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const deleteModal = document.getElementById('deleteModal');
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const id = button.getAttribute('data-id');
-        const confirmDelete = document.getElementById('confirmDelete');
-        confirmDelete.href = 'delete_book.php?id=' + id;
-    });
-</script>
-</body>
-</html>
+        </ul
